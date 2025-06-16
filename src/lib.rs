@@ -242,16 +242,16 @@ impl std::fmt::Display for ContractError {
 #[near(contract_state)]
 #[derive(PanicOnDefault)]
 pub struct Contract {
-    pub tasks: UnorderedMap<TaskId, Task>,
-    pub tasks_per_owner: LookupMap<AccountId, UnorderedSet<TaskId>>,
-    pub habits: UnorderedMap<HabitId, Habit>,
-    pub habits_per_owner: LookupMap<AccountId, UnorderedSet<HabitId>>,
-    pub task_completions: LookupMap<TaskId, Vec<u64>>,
-    pub reward_points: LookupMap<AccountId, u32>,
-    pub rewards: UnorderedMap<RewardId, Reward>,
-    pub rewards_per_owner: LookupMap<AccountId, UnorderedSet<RewardId>>,
-    pub time_slots: UnorderedMap<TimeSlotId, TimeSlot>,
-    pub time_slots_per_owner: LookupMap<AccountId, UnorderedSet<TimeSlotId>>,
+    tasks: UnorderedMap<TaskId, Task>,
+    tasks_per_owner: LookupMap<AccountId, UnorderedSet<TaskId>>,
+    habits: UnorderedMap<HabitId, Habit>,
+    habits_per_owner: LookupMap<AccountId, UnorderedSet<HabitId>>,
+    task_completions: LookupMap<TaskId, Vec<u64>>,
+    reward_points: LookupMap<AccountId, u32>,
+    rewards: UnorderedMap<RewardId, Reward>,
+    rewards_per_owner: LookupMap<AccountId, UnorderedSet<RewardId>>,
+    time_slots: UnorderedMap<TimeSlotId, TimeSlot>,
+    time_slots_per_owner: LookupMap<AccountId, UnorderedSet<TimeSlotId>>,
 }  
 
 
@@ -337,6 +337,11 @@ impl Contract {
 
     // === Reward points management ===
     pub fn get_reward_points(&self, account_id: &AccountId) -> PointsResponse {
+        let owner_id = env::predecessor_account_id();
+        if parent_task.get_owner_id() != &owner_id {
+            return Response::Error(ContractError::AccessError(OwnershipError::NotOwner));
+        }
+
         if account_id.to_string().is_empty() {
             return Response::Error(ContractError::ValidationError(
                 "Account".to_string(),
@@ -611,7 +616,9 @@ impl Contract {
         if let Err(e) = task.transition_to(TaskState::Completed) {
             return Response::Error(e.into());
         }
-    
+        
+        task.time_slots.clear();
+        
         let current_time = env::block_timestamp();
         let mut completions = self.task_completions.get(&task_id).unwrap_or_default();
         completions.push(current_time);
