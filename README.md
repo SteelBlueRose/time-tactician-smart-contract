@@ -1,7 +1,7 @@
 ## How to Build Locally?
 
 1. Commit all the git changes;
-2. use in wsl:
+2. use in powershell:
 
 ```bash
 cargo near build
