@@ -21,14 +21,14 @@ container_build_command = [
 ]
 
 [dependencies]
-near-sdk = { version = "5.7", features = ["legacy"] }
+near-sdk = { version = "5.6", features = ["legacy"] }
 borsh = { version = "1.5.1", features = ["unstable__schema"] }
 schemars = { version = "0.8.12", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1"
 
 [dev-dependencies]
-near-sdk = { version = "5.7", features = ["unit-testing"] }
+near-sdk = { version = "5.6", features = ["unit-testing"] }
 near-workspaces = { version = "0.16", features = ["unstable"] }
 tokio = { version = "1.12.0", features = ["full"] }
 serde_json = "1"
