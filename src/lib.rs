@@ -337,11 +337,6 @@ impl Contract {
 
     // === Reward points management ===
     pub fn get_reward_points(&self, account_id: &AccountId) -> PointsResponse {
-        let owner_id = env::predecessor_account_id();
-        if parent_task.get_owner_id() != &owner_id {
-            return Response::Error(ContractError::AccessError(OwnershipError::NotOwner));
-        }
-
         if account_id.to_string().is_empty() {
             return Response::Error(ContractError::ValidationError(
                 "Account".to_string(),
@@ -618,7 +613,7 @@ impl Contract {
         }
         
         task.time_slots.clear();
-        
+
         let current_time = env::block_timestamp();
         let mut completions = self.task_completions.get(&task_id).unwrap_or_default();
         completions.push(current_time);
